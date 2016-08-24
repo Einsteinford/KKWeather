@@ -1,15 +1,20 @@
 package com.einsteinford.kkweather.Activity;
 
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.einsteinford.kkweather.R;
 import com.einsteinford.kkweather.UI.WeatherPagerAdapter;
@@ -60,12 +65,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         setContentView(R.layout.activity_main);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
-//        mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+        mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
         //添加动画效果
         mAdapter = new WeatherPagerAdapter(getSupportFragmentManager());
         //通过子类实例化
         mViewPager.setAdapter(mAdapter);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_origin);
+
+        setSupportActionBar(toolbar);
+        //将toolbar设置为ActionBar,确保toolbar已经布置在layout中，切不为空
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(MainActivity.this,SettingActivity.class);
+                startActivity(intent);
+                return true;
+            }
+        });
 
 //        responseText = (TextView) findViewById(R.id.response_text);
         am = getAssets();
@@ -76,6 +93,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         finish();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //关联菜单项
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
     @Override
     public void onClick(View view) {
 //        switch (view.getId()) {
