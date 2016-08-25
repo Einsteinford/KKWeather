@@ -63,6 +63,7 @@ public class JsonUtil {
                     String latitude = object.getString("latitude");
                     String longitude = object.getString("longitude");
                     String province = object.getString("province");
+                    //直接执行数据库的添加操作
                     CityListDatabaseUtil.insertCityList(id, city_chinese,city_english,region, province, latitude, longitude, context);
                 }
             }
@@ -74,6 +75,7 @@ public class JsonUtil {
 
 
     public static void parseJSONToAttractionsList(Context context, String jsonData) {
+        //不要使用，数据库已无景区数据
         try {
             JSONObject jsonObject = new JSONObject(jsonData);
             String status = jsonObject.getString("status");

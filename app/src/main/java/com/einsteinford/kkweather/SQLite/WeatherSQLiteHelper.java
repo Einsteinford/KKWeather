@@ -17,6 +17,7 @@ public class WeatherSQLiteHelper extends SQLiteOpenHelper {
             "province text," +
             "latitude text," +
             "longitude text)";
+
     public static final String CreateTableAttractionsID = "create table attractions_id ("
             + "id text primary key,"
             + "city_chinese text,"
@@ -45,7 +46,8 @@ public class WeatherSQLiteHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         try {
             db.execSQL(CreateTableCityID);
-            db.execSQL(CreateTableAttractionsID);
+//            db.execSQL(CreateTableAttractionsID);
+            //暂时不做景区的
             //属于IO操作，进行try
         } catch (Exception e) {
             e.printStackTrace();

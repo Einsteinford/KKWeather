@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
 
 import com.einsteinford.kkweather.Activity.MainActivity;
-import com.einsteinford.kkweather.ViewPager.WeatherFragment;
+import com.einsteinford.kkweather.Fragment.WeatherFragment;
 
 
 /**

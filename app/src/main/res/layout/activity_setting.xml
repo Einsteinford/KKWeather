@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
-    <fragment
-        android:id="@+id/city_fragment"
+    <!--<android.support.v7.widget.Toolbar-->
+        <!--android:id="@+id/toolbar_setting"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="@color/colorPrimary"-->
+        <!--android:minHeight="?attr/actionBarSize">-->
+
+    <!--</android.support.v7.widget.Toolbar>-->
+
+    <FrameLayout
+        android:id="@+id/setting_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="com.einsteinford.kkweather.Activity.CityListViewFragment"/>
-</FrameLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+    </FrameLayout>
+
+</LinearLayout>
