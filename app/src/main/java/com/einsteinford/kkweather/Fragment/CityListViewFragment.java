@@ -73,16 +73,12 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
 
     }
 
-    @Override
-    public void onDestroy() {
-        Log.i(TAG, "onDestroy: ");
-        super.onDestroy();
-    }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Log.i(TAG, "onItemClick: "+mKeyArrayList.get(i));
         Intent intent = new Intent(MainActivity.SELECTED_CITY)
+                .putExtra(MainActivity.HANDLE_MAP,1)
                 .putExtra("ID",mKeyArrayList.get(i))
                 .putExtra("name",deleteStr(mItemList.get(i)));
         mLocalBroadcastManager.sendBroadcast(intent);
@@ -111,7 +107,6 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
                 Map<String,String> response;
                 String inputText = mInputCity.getText().toString();
                 response = CityListDatabaseUtil.queryCity(inputText,getActivity());
-//                Log.i(TAG, "onTextChanged: "+response);
                 mKeyArrayList.clear();
                 mKeyArrayList.addAll(response.keySet());    //将所有id组成list，编号即将跟listview的item相同
                 Log.i(TAG, "onTextChanged: "+ mKeyArrayList);

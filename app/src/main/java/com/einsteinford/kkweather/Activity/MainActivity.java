@@ -1,5 +1,6 @@
 package com.einsteinford.kkweather.Activity;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,7 +8,11 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
@@ -15,23 +20,31 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.einsteinford.kkweather.Fragment.WeatherFragment;
 import com.einsteinford.kkweather.R;
-import com.einsteinford.kkweather.UI.WeatherPagerAdapter;
 import com.einsteinford.kkweather.UI.ZoomOutPageTransformer;
 import com.einsteinford.kkweather.Utils.HttpUtil;
 import com.einsteinford.kkweather.Utils.SaveDataUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by KK on 2016-08-10.
  */
 public class MainActivity extends BaseActivity {
+    public static final String HANDLE_MAP = "handleMap";
     public static int PAGE_NUM = 2;
-    private FragmentPagerAdapter mAdapter;
+    private WeatherPagerAdapter mAdapter;
     private ViewPager mViewPager;
     private String TAG = getClass().getSimpleName();
-
+    private Map<String,String> MyCities;
+    private ArrayList<String> mCityIdArrayList;
     public static final int SHOW_RESPONSE = 0;
     public static final String SELECTED_CITY = "com.einsteinford.kkweather.selected_city";
     private static final String HEWEATHER_API_URL = "https://api.heweather.com/";
@@ -44,8 +57,7 @@ public class MainActivity extends BaseActivity {
     private LocalReceiver mLocalReceiver;
     private LocalBroadcastManager mLocalBroadcastManager;
     private IntentFilter mIntentFilter;
-
-    private TextView responseText;
+    private StringBuilder ID  = new StringBuilder();
 
     private Handler mHandler = new Handler() {
         @Override
@@ -60,10 +72,14 @@ public class MainActivity extends BaseActivity {
     };
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        MyCities = new HashMap<>();
+        mCityIdArrayList = new ArrayList<String>();
 
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
         mIntentFilter = new IntentFilter(SELECTED_CITY);
@@ -82,6 +98,13 @@ public class MainActivity extends BaseActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+                mCityIdArrayList.clear();
+                ArrayList<String> mCityNameArrayList = new ArrayList<String>();
+                mCityIdArrayList.addAll(MyCities.keySet());
+                for (int s = 0; s < mCityIdArrayList.size(); s++) {
+                    mCityNameArrayList.add(MyCities.get(mCityIdArrayList.get(s)));
+                }
+                intent.putExtra("city_names", mCityNameArrayList);
                 startActivity(intent);
                 return true;
             }
@@ -163,6 +186,26 @@ public class MainActivity extends BaseActivity {
         mHandler.sendMessage(message);
     }
 
+//    public List<Fragment> fragments = new ArrayList<>();
+//    public void addFragment(Fragment fragment){
+//        fragments.add(fragment);
+//    }
+//    public void removeFragment(Fragment fragment){
+//        fragments.add(fragment);
+//    }
+//    public void RemoveAllFragment() {
+//        FragmentManager fm = getSupportFragmentManager();
+//        FragmentTransaction transaction = fm.beginTransaction();
+//        for (Fragment fragment : fragments) {
+//            if (fragment!=null) {
+//                transaction.remove(fragment);
+//            }
+//        }
+//        transaction.commit();
+//    }
+
+
+
     private void sendHttpUri(String City_id) {
         HttpUtil.sendHttpRequest(HEWEATHER_API_URL + PATH_WEATHER + "?" + City_id + "&" + APP_SECRET, new HttpUtil.HttpCallbackListener() {
             @Override
@@ -182,11 +225,65 @@ public class MainActivity extends BaseActivity {
     class LocalReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String id = intent.getStringExtra("ID");
-            String name = intent.getStringExtra("name");
-            Log.i(TAG, "onReceive: " + id + name);
+            switch (intent.getIntExtra(HANDLE_MAP, 0)){
+                case 1:
+                    String id = intent.getStringExtra("ID");
+                    String name = intent.getStringExtra("name");
+                    MyCities.put(id,name);      //key肯定唯一
+                    ID.delete(0,ID.length());
+                    mCityIdArrayList.clear();
+                    mCityIdArrayList.addAll(MyCities.keySet());
+                    ID.append(mCityIdArrayList.indexOf(id));
+                    Log.i(TAG, "add: " + ID +"  "+ mCityIdArrayList);
+                    mAdapter.notifyDataSetChanged();
+                    mViewPager.setCurrentItem(Integer.parseInt(ID.toString()));
+                    break;
+                case 2:
+                    int position = intent.getIntExtra("position",0);
+                    ID.delete(0,ID.length());
+                    ID.append(mCityIdArrayList.get(position));
+                    MyCities.remove(mCityIdArrayList.get(position));
+                    mCityIdArrayList.clear();
+                    mCityIdArrayList.addAll(MyCities.keySet());
+                    Log.i(TAG, "remove: ");
+                    mAdapter.notifyDataSetChanged();
+                    break;
+            }
         }
     }
+    private class WeatherPagerAdapter extends FragmentStatePagerAdapter {
+
+        public WeatherPagerAdapter(FragmentManager fm) {
+            super(fm);
+            Log.i(TAG, "WeatherPagerAdapter: ");
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            super.destroyItem(container, position, object);
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return  POSITION_NONE;
+        }
+
+        @Override
+        public int getCount() {
+            return MyCities.size();
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            WeatherFragment fragment = new WeatherFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("ID",mCityIdArrayList.get(position));
+            Log.i(TAG, "getItem: "+mCityIdArrayList.get(position));
+            fragment.setArguments(bundle);
+            return fragment;
+        }
+    }
+
 
 
 }

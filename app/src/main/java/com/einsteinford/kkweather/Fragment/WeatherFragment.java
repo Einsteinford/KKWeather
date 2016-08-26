@@ -23,7 +23,6 @@ import java.io.InputStream;
 public class WeatherFragment extends android.support.v4.app.Fragment {
     String TAG = getClass().getSimpleName();
     private TextView mTvWeather;
-    String cityNames[] = {"我是第一个", "我是第二个"};
 
 
     @Nullable
@@ -31,19 +30,12 @@ public class WeatherFragment extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView: ");
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.weather_fragment, container, false);
-        int position = getArguments().getInt("position");
+        String ID = getArguments().getString("ID");
         mTvWeather = (TextView) view.findViewById(R.id.tv_weather);
 //        view.setBackgroundResource(R.color.main_page_background);
-        mTvWeather.setText(cityNames[position]);
+        mTvWeather.setText(ID);
 
         return view;
     }
-
-    @Override
-    public void onDestroy() {
-        Log.i("WeatherFragment", "onDestroy: ");
-        super.onDestroy();
-    }
-
 
 }

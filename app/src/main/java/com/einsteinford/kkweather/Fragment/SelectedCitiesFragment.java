@@ -42,10 +42,19 @@ public class SelectedCitiesFragment extends Fragment {
     private LocalBroadcastManager mLocalBroadcastManager;
     private AssetManager am;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Bundle bundle = getArguments();
+        mItemList = new ArrayList<>();  //绑定在Adapter上可动态变化的字符串容器
+        mItemList = (ArrayList<String>) bundle.getSerializable("city_names");
+
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.i(TAG, "onCreateView: ");
         View view = inflater.inflate(R.layout.selected_cities_listview_fragment, container, false);
         //传入listView列表和EditText所存在的xml布局文件
         mMusicListView = (ListView) view.findViewById(R.id.selected_cities_list_view);
@@ -57,26 +66,27 @@ public class SelectedCitiesFragment extends Fragment {
 
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
         mKeyArrayList = new ArrayList<>();
-        mItemList = new ArrayList<>();  //绑定在Adapter上可动态变化的字符串容器
-        mItemList.add("test");
-        mItemList.add("test");
-        mItemList.add("test");
+
 
         mCityListAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, mItemList);
 
         mMusicListView.setAdapter(mCityListAdapter);  //然后关联Adapter
-        mMusicListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mMusicListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-//                getActivity().finish();
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(MainActivity.SELECTED_CITY)
+                        .putExtra(MainActivity.HANDLE_MAP,2)
+                        .putExtra("position",i);
+                mLocalBroadcastManager.sendBroadcast(intent);
+                mItemList.remove(i);
+                mCityListAdapter.notifyDataSetChanged();
+                return true;
             }
         });
 
         addCityList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i(TAG, "onClick: ");
                 MakeSQL();
             }
         });
@@ -114,12 +124,6 @@ public class SelectedCitiesFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.i(TAG, "onDestroy: ");
-        super.onDestroy();
     }
 
 }

@@ -1,6 +1,7 @@
 package com.einsteinford.kkweather.Activity;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,6 +16,8 @@ import com.einsteinford.kkweather.Fragment.CityListViewFragment;
 import com.einsteinford.kkweather.Fragment.SelectedCitiesFragment;
 import com.einsteinford.kkweather.R;
 
+import java.util.ArrayList;
+
 /**
  * Created by KK on 2016-08-24.
  */
@@ -28,8 +31,13 @@ public class SettingActivity extends BaseActivity {
         setContentView(R.layout.activity_setting);
         Log.i("SettingActivity", "onCreate: ");
 
+        Intent intent = getIntent();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("city_names",intent.getSerializableExtra("city_names"));
+
         mFragmentManager = getSupportFragmentManager();
         SelectedCitiesFragment selectedCitiesFragment = new SelectedCitiesFragment();
+        selectedCitiesFragment.setArguments(bundle);
         replaceFragment(selectedCitiesFragment);
 
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_setting);
