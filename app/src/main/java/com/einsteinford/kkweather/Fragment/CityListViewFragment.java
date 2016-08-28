@@ -1,10 +1,9 @@
-package com.einsteinford.kkweather.Fragment;
+package com.einsteinford.kkweather.fragment;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
@@ -15,16 +14,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import com.einsteinford.kkweather.Activity.MainActivity;
+import com.einsteinford.kkweather.activity.MainActivity;
 import com.einsteinford.kkweather.R;
-import com.einsteinford.kkweather.Utils.CityListDatabaseUtil;
+import com.einsteinford.kkweather.utils.CityListDatabaseUtil;
+import com.einsteinford.kkweather.utils.HttpUtil;
+import com.einsteinford.kkweather.utils.JsonUtil;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
-
 
 /**
  * Created by KK on 2016-08-22.
@@ -39,7 +42,12 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
     private EditText mInputCity;
     private ArrayList<String> mKeyArrayList;
     private LocalBroadcastManager mLocalBroadcastManager;
+    private AssetManager am;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Nullable
     @Override
@@ -50,7 +58,9 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
         mInputCity = (EditText) view.findViewById(R.id.input_city);
         mMusicListView = (ListView) view.findViewById(R.id.city_list_view);
         //从布局文件中读取listView实例
+        Button addCityList = (Button) view.findViewById(R.id.add_city_list);
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
+        am = getActivity().getAssets();
 
         mInputCity.addTextChangedListener(new CityTextWatcher());
         mKeyArrayList = new ArrayList<>();      //存储Id的容器
@@ -69,16 +79,20 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
         mMusicListView.setAdapter(mCityListAdapter);
         //然后关联Adapter
         mMusicListView.setOnItemClickListener(this);
+        addCityList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MakeSQL();
+            }
+        });
         return view;
-
     }
-
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Log.i(TAG, "onItemClick: "+mKeyArrayList.get(i));
         Intent intent = new Intent(MainActivity.SELECTED_CITY)
-                .putExtra(MainActivity.HANDLE_MAP,1)
+                .putExtra(MainActivity.HANDLE_WEATHER,1)
                 .putExtra("ID",mKeyArrayList.get(i))
                 .putExtra("name",deleteStr(mItemList.get(i)));
         mLocalBroadcastManager.sendBroadcast(intent);
@@ -90,6 +104,31 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
         return str[0];
     }
 
+    private void MakeSQL() {
+        try {
+            InputStream in = am.open("allchina.json");
+            HttpUtil.sendRequestWithLocalJson(in, new HttpUtil.HttpCallbackListener() {
+                @Override
+                public void onFinish(final String response) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            JsonUtil.parseJSONToCityList(getActivity(), response);
+                        }
+                    }).start();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     class CityTextWatcher implements TextWatcher {
 
         @Override
@@ -99,11 +138,16 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
 
         @Override
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
             if (mSearchList == null){
                 mSearchList = new ArrayList<>();  //实例化
             }
             mSearchList.clear();  //清空搜索结果
-            if (mInputCity.getText() != null&&(i>=2)) {
+            if (!mInputCity.getText().toString().equals("")) {
                 Map<String,String> response;
                 String inputText = mInputCity.getText().toString();
                 response = CityListDatabaseUtil.queryCity(inputText,getActivity());
@@ -113,7 +157,6 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
                 for (int s = 0; s < mKeyArrayList.size(); s++) {
                     mSearchList.add(response.get(mKeyArrayList.get(s)));
                 }
-
                 mItemList.clear();
                 mItemList.addAll(mSearchList);
                 //绑定一个新的Adapter用于显示
@@ -121,12 +164,6 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
             }
         }
 
-        @Override
-        public void afterTextChanged(Editable editable) {
-
-        }
-
     }
-
 
 }

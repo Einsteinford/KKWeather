@@ -1,13 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/weather_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/img_bg"
+        android:scaleType="centerCrop"
+        />
 
     <TextView
-    android:id="@+id/tv_weather"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:textSize="50sp"/>
+        android:id="@+id/tv_city"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:text="城市"
+        android:textSize="30sp"
+        android:layout_marginTop="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/tv_weather_now"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="天气"
+        android:textSize="40sp"
+        android:layout_marginRight="56dp"
+        android:layout_marginEnd="56dp"
+        android:layout_below="@+id/tv_city"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="18dp"/>
+
+    <TextView
+        android:id="@+id/tv_temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="气温"
+        android:textSize="70sp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp"
+        android:layout_below="@+id/tv_weather_now"
+        android:layout_alignLeft="@+id/tv_city"
+        android:layout_alignStart="@+id/tv_city"/>
+
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:id="@+id/tableLayout"
+                 android:layout_margin="8dp"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:stretchColumns="1"
+                 android:layout_alignParentBottom="true">
+
+        <TableRow
+            android:layout_marginTop="5dp">
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/first_tv_date"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/first_tv_cond"
+                android:textSize="25sp"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/first_tv_tmp"
+                android:textSize="25sp"/>
+        </TableRow>
+        <TableRow
+            android:layout_marginTop="5dp">
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/second_tv_date"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/second_tv_cond"
+                android:textSize="25sp"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/second_tv_tmp"
+                android:textSize="25sp"/>
+        </TableRow>
+        <TableRow
+            android:layout_marginTop="5dp">
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/third_tv_date"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/third_tv_cond"
+                android:textSize="25sp"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/third_tv_tmp"
+                android:textSize="25sp"/>
+        </TableRow>
+        <TableRow
+            android:layout_marginTop="5dp">
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/fourth_tv_date"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/fourth_tv_cond"
+                android:textSize="25sp"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/fourth_tv_tmp"
+                android:textSize="25sp"/>
+        </TableRow>
+        <TableRow
+            android:layout_marginTop="5dp">
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/fifth_tv_date"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/fifth_tv_cond"
+                android:textSize="25sp"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/fifth_tv_tmp"
+                android:textSize="25sp"/>
+        </TableRow>
+
+    </TableLayout>
+
+</RelativeLayout>

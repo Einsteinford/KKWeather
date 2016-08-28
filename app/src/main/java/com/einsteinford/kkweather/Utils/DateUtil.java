@@ -1,4 +1,4 @@
-package com.einsteinford.kkweather.Utils;
+package com.einsteinford.kkweather.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

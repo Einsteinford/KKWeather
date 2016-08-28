@@ -1,15 +1,12 @@
-package com.einsteinford.kkweather.Fragment;
+package com.einsteinford.kkweather.fragment;
 
 
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +16,11 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
-import com.einsteinford.kkweather.Activity.MainActivity;
-import com.einsteinford.kkweather.Activity.SettingActivity;
+import com.einsteinford.kkweather.activity.MainActivity;
+import com.einsteinford.kkweather.activity.SettingActivity;
 import com.einsteinford.kkweather.R;
-import com.einsteinford.kkweather.Utils.HttpUtil;
-import com.einsteinford.kkweather.Utils.JsonUtil;
+import com.einsteinford.kkweather.utils.HttpUtil;
+import com.einsteinford.kkweather.utils.JsonUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +37,7 @@ public class SelectedCitiesFragment extends Fragment {
     private ArrayAdapter<String> mCityListAdapter;
     private ArrayList<String> mKeyArrayList;
     private LocalBroadcastManager mLocalBroadcastManager;
-    private AssetManager am;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,9 +57,9 @@ public class SelectedCitiesFragment extends Fragment {
         mMusicListView = (ListView) view.findViewById(R.id.selected_cities_list_view);
         //从布局文件中读取listView实例
         ImageButton BtnGotoNext = (ImageButton) view.findViewById(R.id.goto_next);
-        Button addCityList = (Button) view.findViewById(R.id.add_city_list);
 
-        am = getActivity().getAssets();
+
+
 
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
         mKeyArrayList = new ArrayList<>();
@@ -75,7 +72,7 @@ public class SelectedCitiesFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.SELECTED_CITY)
-                        .putExtra(MainActivity.HANDLE_MAP,2)
+                        .putExtra(MainActivity.HANDLE_WEATHER,2)
                         .putExtra("position",i);
                 mLocalBroadcastManager.sendBroadcast(intent);
                 mItemList.remove(i);
@@ -84,12 +81,7 @@ public class SelectedCitiesFragment extends Fragment {
             }
         });
 
-        addCityList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MakeSQL();
-            }
-        });
+
 
         BtnGotoNext.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,28 +94,6 @@ public class SelectedCitiesFragment extends Fragment {
         return view;
     }
 
-    private void MakeSQL() {
-        try {
-            InputStream in = am.open("allchina.json");
-            HttpUtil.sendRequestWithLocalJson(in, new HttpUtil.HttpCallbackListener() {
-                @Override
-                public void onFinish(final String response) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            JsonUtil.parseJSONToCityList(getActivity(), response);
-                        }
-                    }).start();
-                }
 
-                @Override
-                public void onError(Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 }

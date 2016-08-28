@@ -3,12 +3,6 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-    <Button
-        android:id="@+id/add_city_list"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="初始化,预计花费1分钟"
-        android:layout_gravity="center_horizontal"/>
 
     <ListView
         android:id="@+id/selected_cities_list_view"
@@ -20,8 +14,9 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:src="@mipmap/ic_launcher"
         android:layout_gravity="center"
-        android:id="@+id/goto_next"/>
+        android:id="@+id/goto_next"
+        android:background="#00000000"
+        android:src="@android:drawable/ic_input_add"/>
 
 </LinearLayout>

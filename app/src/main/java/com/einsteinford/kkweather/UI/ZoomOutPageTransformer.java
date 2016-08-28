@@ -1,4 +1,4 @@
-package com.einsteinford.kkweather.UI;
+package com.einsteinford.kkweather.ui;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;

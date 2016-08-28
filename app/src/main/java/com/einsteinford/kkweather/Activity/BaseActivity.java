@@ -1,9 +1,9 @@
-package com.einsteinford.kkweather.Activity;
+package com.einsteinford.kkweather.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.einsteinford.kkweather.Utils.ActivityCollector;
+import com.einsteinford.kkweather.utils.ActivityCollector;
 
 public class BaseActivity extends AppCompatActivity {
 

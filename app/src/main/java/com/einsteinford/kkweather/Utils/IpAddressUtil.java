@@ -1,4 +1,4 @@
-package com.einsteinford.kkweather.Utils;
+package com.einsteinford.kkweather.utils;
 
 import android.content.Context;
 import android.net.wifi.WifiInfo;

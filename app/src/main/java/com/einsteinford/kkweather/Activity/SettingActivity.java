@@ -1,4 +1,4 @@
-package com.einsteinford.kkweather.Activity;
+package com.einsteinford.kkweather.activity;
 
 
 import android.content.Intent;
@@ -6,17 +6,10 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 
-import com.einsteinford.kkweather.Fragment.CityListViewFragment;
-import com.einsteinford.kkweather.Fragment.SelectedCitiesFragment;
+import com.einsteinford.kkweather.fragment.SelectedCitiesFragment;
 import com.einsteinford.kkweather.R;
-
-import java.util.ArrayList;
 
 /**
  * Created by KK on 2016-08-24.

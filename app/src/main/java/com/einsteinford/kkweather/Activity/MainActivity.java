@@ -1,7 +1,7 @@
-package com.einsteinford.kkweather.Activity;
+package com.einsteinford.kkweather.activity;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -10,9 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
@@ -21,66 +19,96 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import com.einsteinford.kkweather.Fragment.WeatherFragment;
+import com.einsteinford.kkweather.fragment.WeatherFragment;
 import com.einsteinford.kkweather.R;
-import com.einsteinford.kkweather.UI.ZoomOutPageTransformer;
-import com.einsteinford.kkweather.Utils.HttpUtil;
-import com.einsteinford.kkweather.Utils.SaveDataUtil;
+import com.einsteinford.kkweather.ui.ZoomOutPageTransformer;
+import com.einsteinford.kkweather.utils.CityListDatabaseUtil;
+import com.einsteinford.kkweather.utils.HttpUtil;
+import com.einsteinford.kkweather.utils.JsonUtil;
+import com.einsteinford.kkweather.utils.SaveDataUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by KK on 2016-08-10.
  */
 public class MainActivity extends BaseActivity {
-    public static final String HANDLE_MAP = "handleMap";
-    public static int PAGE_NUM = 2;
-    private WeatherPagerAdapter mAdapter;
-    private ViewPager mViewPager;
-    private String TAG = getClass().getSimpleName();
-    private Map<String,String> MyCities;
-    private ArrayList<String> mCityIdArrayList;
-    public static final int SHOW_RESPONSE = 0;
+    public static final String HANDLE_WEATHER = "handleWeather";
+    public static final String CUSTOM_CITIES = "custom_cities";
+    public static final int INSERT_SUCCEED = 0;
+    public static final int UPDATE_SUCCEED = 1;
     public static final String SELECTED_CITY = "com.einsteinford.kkweather.selected_city";
     private static final String HEWEATHER_API_URL = "https://api.heweather.com/";
     private static final String PATH_WEATHER = "x3/weather";
-
-    private static final String CITY_ID = "cityid=CN101210101";
-
-    private static final String CITY_NAME = "city=chongqing";
     private static final String APP_SECRET = "key=03d784e8221542f68271c249076f4d7b";
+    private WeatherPagerAdapter mAdapter;
+    private ViewPager mViewPager;
+    private String TAG = getClass().getSimpleName();
+    private HashMap<String, String> MyCities;
+    private ArrayList<String> mCityIdArrayList;
     private LocalReceiver mLocalReceiver;
     private LocalBroadcastManager mLocalBroadcastManager;
     private IntentFilter mIntentFilter;
-    private StringBuilder ID  = new StringBuilder();
-
+    private StringBuilder ID = new StringBuilder();
+    private ContentValues mValues;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case SHOW_RESPONSE:
-                    Log.i(TAG, "handleMessage: 已接收");
-                    String response = (String) msg.obj;
-//                    responseText.setText(response);
+                case INSERT_SUCCEED:
+                    Log.i(TAG, "handleMessage:INSERT_SUCCEED 已接收");
+                    String[] strings = (String[]) msg.obj;
+                    final String id = strings[0];
+                    String NAME = strings[1];
+                    CityListDatabaseUtil.insertCityWeather(id, mValues, NAME, MainActivity.this, new CityListDatabaseUtil.SQLCallbackListener() {
+                        @Override
+                        public void onFinish(String name) {
+                            MyCities.put(id, name);      //key肯定唯一
+                            ID.delete(0, ID.length());    //清空以前的位置
+                            mCityIdArrayList.clear();
+                            mCityIdArrayList.addAll(MyCities.keySet());     //这是城市ID集合
+                            ID.append(mCityIdArrayList.indexOf(id));    //这次的城市添加到了第几页
+                            Log.i("sendHttpUri", "add: " + ID + "  " + mCityIdArrayList);
+                            mAdapter.notifyDataSetChanged();        //提醒Adapter，页面信息已经变化,getCount会执行很多次
+                            mViewPager.setCurrentItem(Integer.parseInt(ID.toString()));     //将页面设置为刚才添加的那一页
+                            SaveDataUtil.save2SharedPreferences(MainActivity.this, MyCities, CUSTOM_CITIES);    //最后把Map保存到SP中
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    break;
+                case UPDATE_SUCCEED:
+                    Log.i(TAG, "handleMessage:UPDATE_SUCCEED 已接收");
+                    ContentValues values = (ContentValues) msg.obj;
+                    String updateId = "CN"+String.valueOf(msg.arg1);
+                    CityListDatabaseUtil.updateCityWeather(updateId, values, MainActivity.this, new CityListDatabaseUtil.SQLCallbackListener() {
+                        @Override
+                        public void onFinish(String name) {
+                            mAdapter.notifyDataSetChanged();        //提醒Adapter，页面信息已经变化,getCount会执行很多次
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    break;
             }
         }
     };
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         MyCities = new HashMap<>();
+        MyCities = SaveDataUtil.getFromSharedPreferences(MainActivity.this, CUSTOM_CITIES);
         mCityIdArrayList = new ArrayList<String>();
-
+        mCityIdArrayList.clear();
+        mCityIdArrayList.addAll(MyCities.keySet());
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
         mIntentFilter = new IntentFilter(SELECTED_CITY);
         mLocalReceiver = new LocalReceiver();
@@ -97,21 +125,26 @@ public class MainActivity extends BaseActivity {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                Intent intent = new Intent(MainActivity.this, SettingActivity.class);
-                mCityIdArrayList.clear();
-                ArrayList<String> mCityNameArrayList = new ArrayList<String>();
-                mCityIdArrayList.addAll(MyCities.keySet());
-                for (int s = 0; s < mCityIdArrayList.size(); s++) {
-                    mCityNameArrayList.add(MyCities.get(mCityIdArrayList.get(s)));
+                switch (item.getItemId()) {
+                    case R.id.miProfile:
+                        Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+                        mCityIdArrayList.clear();
+                        ArrayList<String> mCityNameArrayList = new ArrayList<String>();
+                        mCityIdArrayList.addAll(MyCities.keySet());
+                        for (int s = 0; s < mCityIdArrayList.size(); s++) {
+                            mCityNameArrayList.add(MyCities.get(mCityIdArrayList.get(s)));
+                        }
+                        intent.putExtra("city_names", mCityNameArrayList);
+                        startActivity(intent);
+                        break;
+                    case R.id.miCompose:
+                        sendUpdateHttpUri();     //全部更新的方法,想要更新所有天气按下去就对了！
+                        break;
                 }
-                intent.putExtra("city_names", mCityNameArrayList);
-                startActivity(intent);
+
                 return true;
             }
         });
-
-//        responseText = (TextView) findViewById(R.id.response_text);
-
     }
 
     @Override
@@ -126,132 +159,80 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //关联菜单项
+    public boolean onCreateOptionsMenu(Menu menu) {     //关联菜单项
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-//    @Override
-//    public void onClick(View view) {
-//        switch (view.getId()) {
-//            case R.id.send_request:
-//                HttpUtil.sendHttpRequest(HEWEATHER_API_URL + PATH_WEATHER + "?" + CITY_ID + "&" + APP_SECRET, new HttpUtil.HttpCallbackListener() {
-//                    @Override
-//                    public void onFinish(String response) {
-//                        Log.i(TAG, "onFinish: !!!!!!!!!");
-//                        SaveDataUtil.write2SDFromString(MainActivity.this, response, "new.json");
-//                        SendMessage(response);
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                });
-//                break;
-//            case R.id.local_request:
-//                try {
-//                    InputStream in = am.open("hz.json");
-//                    HttpUtil.sendRequestWithLocalJson(in, new HttpUtil.HttpCallbackListener() {
-//                        @Override
-//                        public void onFinish(String response) {
-//                            Log.i(TAG, "onFinish: !!!!!!!!!");
-//                            SaveDataUtil.write2SDFromString(MainActivity.this, response, "hz.json");
-//
-//                            SendMessage(response);
-//                            JsonUtil.parseJSONToWeather(response);
-//                        }
-//
-//                        @Override
-//                        public void onError(Exception e) {
-//                            e.printStackTrace();
-//                        }
-//                    });
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                break;
-//
-//            case R.id.button:
-////                String str = IpAddressUtil.getLocalIpAddress(MainActivity.this);
-//                String str = IpAddressUtil.getIpAddress();
-//                Log.d(TAG, "onClick: " + str);
-//        }
-//    }
 
-    private void SendMessage(String response) {
-        Message message = new Message();
-        message.what = SHOW_RESPONSE;
-        message.obj = response;
-        mHandler.sendMessage(message);
-    }
-
-//    public List<Fragment> fragments = new ArrayList<>();
-//    public void addFragment(Fragment fragment){
-//        fragments.add(fragment);
-//    }
-//    public void removeFragment(Fragment fragment){
-//        fragments.add(fragment);
-//    }
-//    public void RemoveAllFragment() {
-//        FragmentManager fm = getSupportFragmentManager();
-//        FragmentTransaction transaction = fm.beginTransaction();
-//        for (Fragment fragment : fragments) {
-//            if (fragment!=null) {
-//                transaction.remove(fragment);
-//            }
-//        }
-//        transaction.commit();
-//    }
-
-
-
-    private void sendHttpUri(String City_id) {
-        HttpUtil.sendHttpRequest(HEWEATHER_API_URL + PATH_WEATHER + "?" + City_id + "&" + APP_SECRET, new HttpUtil.HttpCallbackListener() {
+    private void sendHttpUri(final Intent intent) {
+        final String id = intent.getStringExtra("ID");//发送网络请求，得到需解析的json
+        HttpUtil.sendHttpRequest(HEWEATHER_API_URL + PATH_WEATHER + "?cityid=" + id + "&" + APP_SECRET, new HttpUtil.HttpCallbackListener() {
             @Override
             public void onFinish(String response) {
-                Log.i(TAG, "onFinish: !!!!!!!!!");
-                SaveDataUtil.write2SDFromString(MainActivity.this, response, "new.json");
-                SendMessage(response);
+//                SaveDataUtil.write2SDFromString(MainActivity.this, response, "new.json");
+                mValues = JsonUtil.parseJSONToWeather(response);
+                String NAME = intent.getStringExtra("name");
+                SendInsertMessage(id, NAME);
             }
-
             @Override
             public void onError(Exception e) {
                 e.printStackTrace();
             }
         });
     }
+    private void sendUpdateHttpUri() {
+        mCityIdArrayList.clear();
+        mCityIdArrayList.addAll(MyCities.keySet());
+        for (int i = 0; i <mCityIdArrayList.size() ; i++) {
+            final String id = mCityIdArrayList.get(i);
+            //发送网络请求，得到需解析的json
+            HttpUtil.sendHttpRequest(HEWEATHER_API_URL + PATH_WEATHER + "?cityid=" + id + "&" + APP_SECRET, new HttpUtil.HttpCallbackListener() {
+                @Override
+                public void onFinish(String response) {
+                    ContentValues values = JsonUtil.parseJSONToWeather(response);   //返回其中一个城市的json
+                    SendUpdateMessage(id,values);
+                }
+                @Override
+                public void onError(Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
 
-    class LocalReceiver extends BroadcastReceiver {
+    private class LocalReceiver extends BroadcastReceiver {     //接收城市的增删请求
+        //虽然可接收全局广播，但是此应用中的广播发送方式都是本地发送
         @Override
         public void onReceive(Context context, Intent intent) {
-            switch (intent.getIntExtra(HANDLE_MAP, 0)){
-                case 1:
-                    String id = intent.getStringExtra("ID");
-                    String name = intent.getStringExtra("name");
-                    MyCities.put(id,name);      //key肯定唯一
-                    ID.delete(0,ID.length());
-                    mCityIdArrayList.clear();
-                    mCityIdArrayList.addAll(MyCities.keySet());
-                    ID.append(mCityIdArrayList.indexOf(id));
-                    Log.i(TAG, "add: " + ID +"  "+ mCityIdArrayList);
-                    mAdapter.notifyDataSetChanged();
-                    mViewPager.setCurrentItem(Integer.parseInt(ID.toString()));
+            switch (intent.getIntExtra(HANDLE_WEATHER, 0)) {
+                case 1:     //往用户的列表里新增一个城市
+                    sendHttpUri(intent);
                     break;
-                case 2:
-                    int position = intent.getIntExtra("position",0);
-                    ID.delete(0,ID.length());
+                case 2:     //直接从用户列表里删除此城市
+                    int position = intent.getIntExtra("position", 0);
+                    ID.delete(0, ID.length());
                     ID.append(mCityIdArrayList.get(position));
                     MyCities.remove(mCityIdArrayList.get(position));
                     mCityIdArrayList.clear();
                     mCityIdArrayList.addAll(MyCities.keySet());
                     Log.i(TAG, "remove: ");
+                    //TODO 数据库数据行
                     mAdapter.notifyDataSetChanged();
+                    SaveDataUtil.save2SharedPreferences(MainActivity.this, MyCities, CUSTOM_CITIES);
+                    break;
+                default:
                     break;
             }
         }
     }
-    private class WeatherPagerAdapter extends FragmentStatePagerAdapter {
+    public class AutoUpdateReceiver extends BroadcastReceiver{      //仅用于接收系统日期改变的广播
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            sendUpdateHttpUri();
+        }
+    }
+
+    private class WeatherPagerAdapter extends FragmentStatePagerAdapter {   //用于ViewPager
 
         public WeatherPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -265,7 +246,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public int getItemPosition(Object object) {
-            return  POSITION_NONE;
+            return POSITION_NONE;
         }
 
         @Override
@@ -277,13 +258,29 @@ public class MainActivity extends BaseActivity {
         public Fragment getItem(int position) {
             WeatherFragment fragment = new WeatherFragment();
             Bundle bundle = new Bundle();
-            bundle.putString("ID",mCityIdArrayList.get(position));
-            Log.i(TAG, "getItem: "+mCityIdArrayList.get(position));
+            bundle.putString("ID", mCityIdArrayList.get(position));     //从Map中得到自己的城市ID
+
+            Log.i(TAG, "getItem: " + mCityIdArrayList.get(position));
             fragment.setArguments(bundle);
             return fragment;
         }
     }
 
-
-
+    private void SendInsertMessage(String CITY_ID, String CITY_NAME) {
+        Message message = new Message();
+        message.what = INSERT_SUCCEED;
+        message.obj = new String[]{CITY_ID, CITY_NAME};
+        mHandler.sendMessage(message);
+    }
+    private void SendUpdateMessage(String id,ContentValues values) {
+        Message message = new Message();
+        message.what = UPDATE_SUCCEED;
+        //String没法携带，把id的前2个字符CN删掉，转换为int
+        String[] strings = id.split("CN");
+        int ID = Integer.parseInt(strings[1]);
+        Log.i(TAG, "SendUpdateMessage:"+ID);
+        message.arg1 = ID;
+        message.obj = values;
+        mHandler.sendMessage(message);
+    }
 }
