@@ -5,9 +5,9 @@
                 android:layout_height="match_parent">
 
     <ImageView
+        android:id="@+id/img_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/img_bg"
         android:scaleType="centerCrop"
         />
 
@@ -15,136 +15,216 @@
         android:id="@+id/tv_city"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:layout_marginLeft="20dp"
         android:layout_marginStart="20dp"
-        android:text="城市"
-        android:textSize="30sp"
         android:layout_marginTop="10dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:text="城市"
+        android:textSize="30sp"/>
 
     <TextView
         android:id="@+id/tv_weather_now"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="天气"
-        android:textSize="40sp"
-        android:layout_marginRight="56dp"
-        android:layout_marginEnd="56dp"
-        android:layout_below="@+id/tv_city"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="18dp"/>
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tv_city"
+        android:layout_marginEnd="56dp"
+        android:layout_marginRight="56dp"
+        android:layout_marginTop="18dp"
+        android:text="天气"
+        android:textSize="40sp"/>
 
     <TextView
         android:id="@+id/tv_temperature"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="气温"
-        android:textSize="70sp"
+        android:layout_alignLeft="@+id/tv_city"
+        android:layout_alignStart="@+id/tv_city"
+        android:layout_below="@+id/tv_weather_now"
         android:layout_marginLeft="30dp"
         android:layout_marginStart="30dp"
-        android:layout_below="@+id/tv_weather_now"
-        android:layout_alignLeft="@+id/tv_city"
-        android:layout_alignStart="@+id/tv_city"/>
+        android:text="气温"
+        android:textSize="70sp"/>
 
     <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
                  android:id="@+id/tableLayout"
-                 android:layout_margin="8dp"
                  android:layout_width="match_parent"
                  android:layout_height="wrap_content"
-                 android:stretchColumns="1"
-                 android:layout_alignParentBottom="true">
+                 android:layout_alignParentBottom="true"
+                 android:background="@color/background"
+                 android:stretchColumns="1">
 
         <TableRow
+            android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp">
+
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/first_tv_date"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:textColor="@color/text_color"
                 android:textSize="20sp"/>
 
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/first_tv_cond"
-                android:textSize="25sp"
-                android:layout_gravity="center"/>
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/text_color"
+                android:textSize="25sp"/>
 
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/first_tv_tmp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:textColor="@color/text_color"
                 android:textSize="25sp"/>
         </TableRow>
+
+        <TableRow>
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_span="3"
+                android:background="@color/line_color"/>
+        </TableRow>
+
         <TableRow
+            android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp">
+
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/second_tv_date"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:textColor="@color/text_color"
                 android:textSize="20sp"/>
 
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/second_tv_cond"
-                android:textSize="25sp"
-                android:layout_gravity="center"/>
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/text_color"
+                android:textSize="25sp"/>
 
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/second_tv_tmp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:textColor="@color/text_color"
                 android:textSize="25sp"/>
         </TableRow>
+        <TableRow>
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_span="3"
+                android:background="@color/line_color"/>
+        </TableRow>
+
         <TableRow
+            android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp">
+
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/third_tv_date"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:textColor="@color/text_color"
                 android:textSize="20sp"/>
 
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/third_tv_cond"
-                android:textSize="25sp"
-                android:layout_gravity="center"/>
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/text_color"
+                android:textSize="25sp"/>
 
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/third_tv_tmp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:textColor="@color/text_color"
                 android:textSize="25sp"/>
         </TableRow>
+        <TableRow>
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_span="3"
+                android:background="@color/line_color"/>
+        </TableRow>
+
         <TableRow
+            android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp">
+
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/fourth_tv_date"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:textColor="@color/text_color"
                 android:textSize="20sp"/>
 
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/fourth_tv_cond"
-                android:textSize="25sp"
-                android:layout_gravity="center"/>
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/text_color"
+                android:textSize="25sp"/>
 
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/fourth_tv_tmp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:textColor="@color/text_color"
                 android:textSize="25sp"/>
         </TableRow>
+        <TableRow>
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_span="3"
+                android:background="@color/line_color"/>
+        </TableRow>
+
         <TableRow
+            android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp">
+
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/fifth_tv_date"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:textColor="@color/text_color"
                 android:textSize="20sp"/>
 
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/fifth_tv_cond"
-                android:textSize="25sp"
-                android:layout_gravity="center"/>
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/text_color"
+                android:textSize="25sp"/>
 
             <TextView
-                android:layout_height="wrap_content"
                 android:id="@+id/fifth_tv_tmp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:textColor="@color/text_color"
                 android:textSize="25sp"/>
         </TableRow>
 

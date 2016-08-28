@@ -1,39 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/background"
+                android:padding="5dp">
+
     <Button
         android:id="@+id/add_city_list"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="初始化"
-        android:layout_gravity="center_horizontal"
-        style="?android:attr/borderlessButtonStyle"
-        android:background="@drawable/button_changed"
-        android:textColor="@color/text_color"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignBottom="@+id/input_city"
         android:layout_alignParentEnd="true"
-        android:layout_alignBottom="@+id/input_city"/>
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/button_changed"
+        android:text="初始化"
+        android:textSize="18sp"/>
+
     <EditText
         android:id="@+id/input_city"
-        android:hint="请输入城市的中文或拼音"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:inputType="text"
-        android:layout_toLeftOf="@+id/add_city_list"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/add_city_list"
+        android:background="@null"
+        android:hint="第一次请初始化,拼音查询"
+        android:inputType="text"
+        android:padding="10dp"
+        android:singleLine="true"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/hit_color"/>
+
     <ListView
         android:id="@+id/city_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/add_city_list"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/add_city_list"
+        android:divider="@color/hit_color"
+        android:dividerHeight="1px">
 
     </ListView>
 </RelativeLayout>

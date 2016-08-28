@@ -66,7 +66,7 @@ public class JsonUtil {
         return contentValues;     //包含了所有的数据库信息
     }
 
-    public static void parseJSONToCityList(Context context, String jsonData) {
+    public static void parseJSONToCityList(Context context, String jsonData,JsonCallbackListener listener) {
         try {
             JSONObject jsonObject = new JSONObject(jsonData);
             String status = jsonObject.getString("status");
@@ -87,10 +87,16 @@ public class JsonUtil {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            listener.onError(e);
         }
+        //使dialog结束
+        listener.onFinish();
         Log.i("CityList", ":InsertSuccess");
     }
 
+    public interface JsonCallbackListener {
+        void onFinish();
 
+        void onError(Exception e);
+    }
 }

@@ -65,7 +65,7 @@ public class SelectedCitiesFragment extends Fragment {
         mKeyArrayList = new ArrayList<>();
 
 
-        mCityListAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, mItemList);
+        mCityListAdapter = new ArrayAdapter<String>(getActivity(), R.layout.list_item, mItemList);
 
         mMusicListView.setAdapter(mCityListAdapter);  //然后关联Adapter
         mMusicListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
