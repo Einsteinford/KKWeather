@@ -1,8 +1,11 @@
 package com.einsteinford.kkweather.fragment;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -43,10 +46,18 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
     private ArrayList<String> mKeyArrayList;
     private LocalBroadcastManager mLocalBroadcastManager;
     private AssetManager am;
+    private ProgressDialog pd;
+    private Handler mHandler =new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            pd.dismiss();// 关闭ProgressDialog
+        }
+    };
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Nullable
@@ -74,7 +85,7 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
 
         mItemList = new ArrayList<>();  //绑定在Adapter上可动态变化的字符串容器
         mItemList.addAll(mHotList);
-        mCityListAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, mItemList);
+        mCityListAdapter = new ArrayAdapter<String>(getActivity(), R.layout.list_item, mItemList);
 
         mMusicListView.setAdapter(mCityListAdapter);
         //然后关联Adapter
@@ -82,6 +93,9 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
         addCityList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                /* 显示ProgressDialog */
+                pd = ProgressDialog.show(getActivity(), "城市搜索库", "初始化中，请稍后……");
+                pd.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
                 MakeSQL();
             }
         });
@@ -113,7 +127,16 @@ public class CityListViewFragment extends Fragment implements AdapterView.OnItem
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            JsonUtil.parseJSONToCityList(getActivity(), response);
+                            JsonUtil.parseJSONToCityList(getActivity(), response, new JsonUtil.JsonCallbackListener() {
+                                @Override
+                                public void onFinish() {
+                                    mHandler.sendEmptyMessage(0);
+                                }
+                                @Override
+                                public void onError(Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
                         }
                     }).start();
                 }

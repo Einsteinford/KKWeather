@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 
 import com.einsteinford.kkweather.fragment.WeatherFragment;
 import com.einsteinford.kkweather.R;
+import com.einsteinford.kkweather.ui.DepthPageTransformer;
 import com.einsteinford.kkweather.ui.ZoomOutPageTransformer;
 import com.einsteinford.kkweather.utils.CityListDatabaseUtil;
 import com.einsteinford.kkweather.utils.HttpUtil;
@@ -115,7 +116,7 @@ public class MainActivity extends BaseActivity {
         mLocalBroadcastManager.registerReceiver(mLocalReceiver, mIntentFilter);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());  //添加动画效果
+        mViewPager.setPageTransformer(true, new DepthPageTransformer());  //添加动画效果
         mAdapter = new WeatherPagerAdapter(getSupportFragmentManager());  //通过子类实例化
         mViewPager.setAdapter(mAdapter);
 
@@ -169,7 +170,7 @@ public class MainActivity extends BaseActivity {
         HttpUtil.sendHttpRequest(HEWEATHER_API_URL + PATH_WEATHER + "?cityid=" + id + "&" + APP_SECRET, new HttpUtil.HttpCallbackListener() {
             @Override
             public void onFinish(String response) {
-//                SaveDataUtil.write2SDFromString(MainActivity.this, response, "new.json");
+                SaveDataUtil.write2SDFromString(MainActivity.this, response, "new.json");
                 mValues = JsonUtil.parseJSONToWeather(response);
                 String NAME = intent.getStringExtra("name");
                 SendInsertMessage(id, NAME);
@@ -216,7 +217,6 @@ public class MainActivity extends BaseActivity {
                     mCityIdArrayList.clear();
                     mCityIdArrayList.addAll(MyCities.keySet());
                     Log.i(TAG, "remove: ");
-                    //TODO 数据库数据行
                     mAdapter.notifyDataSetChanged();
                     SaveDataUtil.save2SharedPreferences(MainActivity.this, MyCities, CUSTOM_CITIES);
                     break;
