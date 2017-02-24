@@ -40,6 +40,7 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by KK on 2016-08-10.
@@ -178,6 +179,7 @@ public class MainActivity extends BaseActivity {
 
     private void sendHttpUri(Intent intent) {
         String id = intent.getStringExtra("ID");//发送网络请求，得到需解析的json
+        Logger.i(id);
         //TODO 将以下方法替换掉
 //        HttpUtils.sendHttpRequest(HEWEATHER_API_URL + PATH_WEATHER + "?cityid=" + id + "&" + APP_SECRET, new HttpUtils.HttpCallbackListener() {
 //            @Override
@@ -197,6 +199,7 @@ public class MainActivity extends BaseActivity {
                 .getInstance()
                 .sendRetrofitRequest(id);   //得到observable对象
 
+        //下发开始报错
         observable
                 .doOnNext(new Action1<WeatherBean>() {      //在onNext前进行的操作
                     @Override
@@ -204,16 +207,20 @@ public class MainActivity extends BaseActivity {
 
                     }
                 })
-                .observeOn(AndroidSchedulers.mainThread())    //在主线程中观察
+                .subscribeOn(Schedulers.io())
+                //指定 subscribe() 所发生的线程，即 Observable.OnSubscribe 被激活时所处的线程
+                //在此处即是指网络请求这个动作
+                .observeOn(AndroidSchedulers.mainThread())
+                //obserberOn指定 Subscriber 所运行在的线程。或者叫做事件消费的线程
                 .subscribe(new Subscriber<WeatherBean>() {      //订阅
                     @Override
                     public void onCompleted() {
-
+                        Logger.i("SUCCESS");
                     }
 
                     @Override
                     public void onError(Throwable e) {
-
+                        Logger.e(e.toString());
                     }
 
                     @Override

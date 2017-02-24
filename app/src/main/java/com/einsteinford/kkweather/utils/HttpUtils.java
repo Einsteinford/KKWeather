@@ -139,7 +139,6 @@ public class HttpUtils {
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
-
         WeatherApi api = retrofit.create(WeatherApi.class);     //TODO 通过retrofit创建api对象
         return api.getCityWeather(city, HttpConstans.MY_KEY);
     }
