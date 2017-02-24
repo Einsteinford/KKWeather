@@ -4,13 +4,22 @@
     <style name="AppTheme" parent="AppTheme.Base">
     </style>
     <!-- Customize your theme here. -->
-    <style name="AppTheme.Base" parent="Theme.AppCompat">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="AppTheme.Base" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <!--<item name="android:textColor">@color/text_color</item>-->
+        <!--<item name="actionOverflowMenuStyle">@style/OverflowMenuStyle</item>-->
+    </style>
+
+    <!-- toolbar菜单样式 -->
+    <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="actionMenuTextColor">@color/text_color</item>
+        <!--<item name="overlapAnchor">false</item>-->
+    </style>
+
+    <!-- toolbar弹出菜单样式 -->
+    <style name="ToolbarPopupTheme">
+        <item name="android:background">@color/colorPrimaryDark</item>
     </style>
 
 </resources>

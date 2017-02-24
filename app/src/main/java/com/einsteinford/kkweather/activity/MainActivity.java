@@ -24,18 +24,13 @@ import com.einsteinford.kkweather.bean.WeatherBean;
 import com.einsteinford.kkweather.fragment.WeatherFragment;
 import com.einsteinford.kkweather.R;
 import com.einsteinford.kkweather.ui.DepthPageTransformer;
-import com.einsteinford.kkweather.utils.CityListDatabaseUtil;
 import com.einsteinford.kkweather.utils.HttpUtils;
-import com.einsteinford.kkweather.utils.JsonUtil;
 import com.einsteinford.kkweather.utils.SaveDataUtil;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -133,8 +128,7 @@ public class MainActivity extends BaseActivity {
         mViewPager.setAdapter(mAdapter);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_origin);
-
-        setSupportActionBar(toolbar);  //将toolbar设置为ActionBar,确保toolbar已经布置在layout中，切不为空
+        setSupportActionBar(toolbar);  //将toolbar设置为ActionBar,确保toolbar已经布置在layout中，且不为空
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -150,7 +144,7 @@ public class MainActivity extends BaseActivity {
                         intent.putExtra("city_names", mCityNameArrayList);
                         startActivity(intent);
                         break;
-                    case R.id.miCompose:
+                    case R.id.miRefresh:
                         sendUpdateHttpUri();     //全部更新的方法,想要更新所有天气按下去就对了！
                         break;
                 }
