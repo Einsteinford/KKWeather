@@ -220,7 +220,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onNext(WeatherBean WeatherBean) {
                         //进行数据库操作
-                        Logger.i(WeatherBean.getHeWeather5().get(0).getBasic().getCity());
+                        Logger.i(WeatherBean.getHeWeather5().get(0).getBasic().getBasic_id());
                     }
                 });
 
