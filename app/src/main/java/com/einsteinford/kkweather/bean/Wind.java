@@ -1,10 +1,15 @@
 package com.einsteinford.kkweather.bean;
 
-public class Wind {
+import com.google.gson.annotations.Expose;
 
+public class Wind {
+    @Expose
     private String deg;
+    @Expose
     private String dir;
+    @Expose
     private String sc;
+    @Expose
     private String spd;
     public void setDeg(String deg) {
          this.deg = deg;

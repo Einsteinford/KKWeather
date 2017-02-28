@@ -1,10 +1,15 @@
 package com.einsteinford.kkweather.bean;
 
-public class Astro {
+import com.google.gson.annotations.Expose;
 
+public class Astro {
+    @Expose
     private String mr;
+    @Expose
     private String ms;
+    @Expose
     private String sr;
+    @Expose
     private String ss;
     public void setMr(String mr) {
          this.mr = mr;

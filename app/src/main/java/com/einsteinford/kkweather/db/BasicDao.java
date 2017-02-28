@@ -1,13 +1,18 @@
 package com.einsteinford.kkweather.db;
 
+import java.util.List;
+import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
 import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.Property;
+import org.greenrobot.greendao.internal.SqlUtils;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
+
+import com.einsteinford.kkweather.bean.Update;
 
 import com.einsteinford.kkweather.bean.Basic;
 
@@ -15,7 +20,7 @@ import com.einsteinford.kkweather.bean.Basic;
 /** 
  * DAO for table "BASIC".
 */
-public class BasicDao extends AbstractDao<Basic, Void> {
+public class BasicDao extends AbstractDao<Basic, Long> {
 
     public static final String TABLENAME = "BASIC";
 
@@ -24,12 +29,16 @@ public class BasicDao extends AbstractDao<Basic, Void> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property City = new Property(0, String.class, "city", false, "CITY");
-        public final static Property Cnty = new Property(1, String.class, "cnty", false, "CNTY");
-        public final static Property Lat = new Property(2, String.class, "lat", false, "LAT");
-        public final static Property Lon = new Property(3, String.class, "lon", false, "LON");
-        public final static Property Basic_id = new Property(4, String.class, "basic_id", false, "BASIC_ID");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
+        public final static Property City = new Property(1, String.class, "city", false, "CITY");
+        public final static Property Cnty = new Property(2, String.class, "cnty", false, "CNTY");
+        public final static Property Lat = new Property(3, String.class, "lat", false, "LAT");
+        public final static Property Lon = new Property(4, String.class, "lon", false, "LON");
+        public final static Property Basic_id = new Property(5, String.class, "basic_id", false, "BASIC_ID");
+        public final static Property UpdateId = new Property(6, long.class, "updateId", false, "UPDATE_ID");
     }
+
+    private DaoSession daoSession;
 
 
     public BasicDao(DaoConfig config) {
@@ -38,17 +47,25 @@ public class BasicDao extends AbstractDao<Basic, Void> {
     
     public BasicDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"BASIC\" (" + //
-                "\"CITY\" TEXT NOT NULL ," + // 0: city
-                "\"CNTY\" TEXT," + // 1: cnty
-                "\"LAT\" TEXT," + // 2: lat
-                "\"LON\" TEXT," + // 3: lon
-                "\"BASIC_ID\" TEXT);"); // 4: basic_id
+                "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
+                "\"CITY\" TEXT," + // 1: city
+                "\"CNTY\" TEXT," + // 2: cnty
+                "\"LAT\" TEXT," + // 3: lat
+                "\"LON\" TEXT," + // 4: lon
+                "\"BASIC_ID\" TEXT NOT NULL ," + // 5: basic_id
+                "\"UPDATE_ID\" INTEGER NOT NULL );"); // 6: updateId
+        // Add Indexes
+        db.execSQL("CREATE INDEX " + constraint + "IDX_BASIC_CITY_CNTY_LAT_LON ON BASIC" +
+                " (\"CITY\" ASC,\"CNTY\" ASC,\"LAT\" ASC,\"LON\" ASC);");
+        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_BASIC_BASIC_ID_DESC ON BASIC" +
+                " (\"BASIC_ID\" DESC);");
     }
 
     /** Drops the underlying database table. */
@@ -60,96 +77,121 @@ public class BasicDao extends AbstractDao<Basic, Void> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, Basic entity) {
         stmt.clearBindings();
-        stmt.bindString(1, entity.getCity());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
+ 
+        String city = entity.getCity();
+        if (city != null) {
+            stmt.bindString(2, city);
+        }
  
         String cnty = entity.getCnty();
         if (cnty != null) {
-            stmt.bindString(2, cnty);
+            stmt.bindString(3, cnty);
         }
  
         String lat = entity.getLat();
         if (lat != null) {
-            stmt.bindString(3, lat);
+            stmt.bindString(4, lat);
         }
  
         String lon = entity.getLon();
         if (lon != null) {
-            stmt.bindString(4, lon);
+            stmt.bindString(5, lon);
         }
- 
-        String basic_id = entity.getBasic_id();
-        if (basic_id != null) {
-            stmt.bindString(5, basic_id);
-        }
+        stmt.bindString(6, entity.getBasic_id());
+        stmt.bindLong(7, entity.getUpdateId());
     }
 
     @Override
     protected final void bindValues(SQLiteStatement stmt, Basic entity) {
         stmt.clearBindings();
-        stmt.bindString(1, entity.getCity());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
+ 
+        String city = entity.getCity();
+        if (city != null) {
+            stmt.bindString(2, city);
+        }
  
         String cnty = entity.getCnty();
         if (cnty != null) {
-            stmt.bindString(2, cnty);
+            stmt.bindString(3, cnty);
         }
  
         String lat = entity.getLat();
         if (lat != null) {
-            stmt.bindString(3, lat);
+            stmt.bindString(4, lat);
         }
  
         String lon = entity.getLon();
         if (lon != null) {
-            stmt.bindString(4, lon);
+            stmt.bindString(5, lon);
         }
- 
-        String basic_id = entity.getBasic_id();
-        if (basic_id != null) {
-            stmt.bindString(5, basic_id);
-        }
+        stmt.bindString(6, entity.getBasic_id());
+        stmt.bindLong(7, entity.getUpdateId());
     }
 
     @Override
-    public Void readKey(Cursor cursor, int offset) {
-        return null;
+    protected final void attachEntity(Basic entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
+    }
+
+    @Override
+    public Long readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public Basic readEntity(Cursor cursor, int offset) {
         Basic entity = new Basic( //
-            cursor.getString(offset + 0), // city
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // cnty
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // lat
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // lon
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4) // basic_id
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // city
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // cnty
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // lat
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // lon
+            cursor.getString(offset + 5), // basic_id
+            cursor.getLong(offset + 6) // updateId
         );
         return entity;
     }
      
     @Override
     public void readEntity(Cursor cursor, Basic entity, int offset) {
-        entity.setCity(cursor.getString(offset + 0));
-        entity.setCnty(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setLat(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setLon(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setBasic_id(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
+        entity.setCity(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setCnty(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setLat(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setLon(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setBasic_id(cursor.getString(offset + 5));
+        entity.setUpdateId(cursor.getLong(offset + 6));
      }
     
     @Override
-    protected final Void updateKeyAfterInsert(Basic entity, long rowId) {
-        // Unsupported or missing PK type
-        return null;
+    protected final Long updateKeyAfterInsert(Basic entity, long rowId) {
+        entity.setId(rowId);
+        return rowId;
     }
     
     @Override
-    public Void getKey(Basic entity) {
-        return null;
+    public Long getKey(Basic entity) {
+        if(entity != null) {
+            return entity.getId();
+        } else {
+            return null;
+        }
     }
 
     @Override
     public boolean hasKey(Basic entity) {
-        // TODO
-        return false;
+        return entity.getId() != null;
     }
 
     @Override
@@ -157,4 +199,97 @@ public class BasicDao extends AbstractDao<Basic, Void> {
         return true;
     }
     
+    private String selectDeep;
+
+    protected String getSelectDeep() {
+        if (selectDeep == null) {
+            StringBuilder builder = new StringBuilder("SELECT ");
+            SqlUtils.appendColumns(builder, "T", getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T0", daoSession.getUpdateDao().getAllColumns());
+            builder.append(" FROM BASIC T");
+            builder.append(" LEFT JOIN UPDATE T0 ON T.\"UPDATE_ID\"=T0.\"_id\"");
+            builder.append(' ');
+            selectDeep = builder.toString();
+        }
+        return selectDeep;
+    }
+    
+    protected Basic loadCurrentDeep(Cursor cursor, boolean lock) {
+        Basic entity = loadCurrent(cursor, 0, lock);
+        int offset = getAllColumns().length;
+
+        Update update = loadCurrentOther(daoSession.getUpdateDao(), cursor, offset);
+         if(update != null) {
+            entity.setUpdate(update);
+        }
+
+        return entity;    
+    }
+
+    public Basic loadDeep(Long key) {
+        assertSinglePk();
+        if (key == null) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder(getSelectDeep());
+        builder.append("WHERE ");
+        SqlUtils.appendColumnsEqValue(builder, "T", getPkColumns());
+        String sql = builder.toString();
+        
+        String[] keyArray = new String[] { key.toString() };
+        Cursor cursor = db.rawQuery(sql, keyArray);
+        
+        try {
+            boolean available = cursor.moveToFirst();
+            if (!available) {
+                return null;
+            } else if (!cursor.isLast()) {
+                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
+            }
+            return loadCurrentDeep(cursor, true);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+    /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
+    public List<Basic> loadAllDeepFromCursor(Cursor cursor) {
+        int count = cursor.getCount();
+        List<Basic> list = new ArrayList<Basic>(count);
+        
+        if (cursor.moveToFirst()) {
+            if (identityScope != null) {
+                identityScope.lock();
+                identityScope.reserveRoom(count);
+            }
+            try {
+                do {
+                    list.add(loadCurrentDeep(cursor, false));
+                } while (cursor.moveToNext());
+            } finally {
+                if (identityScope != null) {
+                    identityScope.unlock();
+                }
+            }
+        }
+        return list;
+    }
+    
+    protected List<Basic> loadDeepAllAndCloseCursor(Cursor cursor) {
+        try {
+            return loadAllDeepFromCursor(cursor);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+
+    /** A raw-style query where you can pass any WHERE clause and arguments. */
+    public List<Basic> queryDeep(String where, String... selectionArg) {
+        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
+        return loadDeepAllAndCloseCursor(cursor);
+    }
+ 
 }

@@ -5,6 +5,8 @@ import android.util.Log;
 import com.einsteinford.kkweather.bean.WeatherBean;
 import com.einsteinford.kkweather.http.HttpConstans;
 import com.einsteinford.kkweather.http.WeatherApi;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.orhanobut.logger.Logger;
 
 import java.io.BufferedReader;
@@ -134,13 +136,15 @@ public class HttpUtils {
     }
 
     public Observable<WeatherBean> sendRetrofitRequest(String city) {
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .create();
         Retrofit retrofit = new Retrofit.Builder()  //创建Retrofit对象
                 .baseUrl(HttpConstans.HOST)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
         WeatherApi api = retrofit.create(WeatherApi.class);     //TODO 通过retrofit创建api对象
         return api.getCityWeather(city, HttpConstans.MY_KEY);
     }
-
 }

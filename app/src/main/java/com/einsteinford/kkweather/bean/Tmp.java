@@ -1,8 +1,11 @@
 package com.einsteinford.kkweather.bean;
 
-public class Tmp {
+import com.google.gson.annotations.Expose;
 
+public class Tmp {
+    @Expose
     private String max;
+    @Expose
     private String min;
     public void setMax(String max) {
          this.max = max;

@@ -20,7 +20,13 @@ import android.view.MenuItem;
 
 import android.view.ViewGroup;
 
+import com.einsteinford.kkweather.app.KKWeatherApplication;
+import com.einsteinford.kkweather.bean.Basic;
+import com.einsteinford.kkweather.bean.Update;
 import com.einsteinford.kkweather.bean.WeatherBean;
+import com.einsteinford.kkweather.db.BasicDao;
+import com.einsteinford.kkweather.db.DaoSession;
+import com.einsteinford.kkweather.db.UpdateDao;
 import com.einsteinford.kkweather.fragment.WeatherFragment;
 import com.einsteinford.kkweather.R;
 import com.einsteinford.kkweather.ui.DepthPageTransformer;
@@ -30,6 +36,7 @@ import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -40,7 +47,7 @@ import rx.schedulers.Schedulers;
 /**
  * Created by KK on 2016-08-10.
  */
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     public static final String HANDLE_WEATHER = "handleWeather";
     public static final String CUSTOM_CITIES = "custom_cities";
     public static final int INSERT_SUCCEED = 0;
@@ -107,6 +114,8 @@ public class MainActivity extends BaseActivity {
             }
         }
     };
+    private BasicDao mBasicDao;
+    private UpdateDao mUpdateDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,29 +138,14 @@ public class MainActivity extends BaseActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_origin);
         setSupportActionBar(toolbar);  //将toolbar设置为ActionBar,确保toolbar已经布置在layout中，且不为空
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.miProfile:
-                        Intent intent = new Intent(MainActivity.this, SettingActivity.class);
-                        mCityIdArrayList.clear();
-                        ArrayList<String> mCityNameArrayList = new ArrayList<String>();
-                        mCityIdArrayList.addAll(MyCities.keySet());
-                        for (int s = 0; s < mCityIdArrayList.size(); s++) {
-                            mCityNameArrayList.add(MyCities.get(mCityIdArrayList.get(s)));
-                        }
-                        intent.putExtra("city_names", mCityNameArrayList);
-                        startActivity(intent);
-                        break;
-                    case R.id.miRefresh:
-                        sendUpdateHttpUri();     //全部更新的方法,想要更新所有天气按下去就对了！
-                        break;
-                }
+        toolbar.setOnMenuItemClickListener(this);
+        initDb();
+    }
 
-                return true;
-            }
-        });
+    private void initDb() {     //取得数据库操作
+        DaoSession daoSession = ((KKWeatherApplication) getApplication()).getDaoSession();
+        mBasicDao = daoSession.getBasicDao();
+        mUpdateDao = daoSession.getUpdateDao();
     }
 
     @Override
@@ -168,6 +162,28 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {     //关联菜单项
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.miProfile:
+                Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+                mCityIdArrayList.clear();
+                ArrayList<String> mCityNameArrayList = new ArrayList<String>();
+                mCityIdArrayList.addAll(MyCities.keySet());
+                for (int s = 0; s < mCityIdArrayList.size(); s++) {
+                    mCityNameArrayList.add(MyCities.get(mCityIdArrayList.get(s)));
+                }
+                intent.putExtra("city_names", mCityNameArrayList);
+                startActivity(intent);
+                break;
+            case R.id.miRefresh:
+                sendUpdateHttpUri();     //全部更新的方法,想要更新所有天气按下去就对了！
+                break;
+        }
+
         return true;
     }
 
@@ -214,13 +230,27 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        Logger.e(e.toString());
+                        Log.e(TAG, "onError: ", e);
+//                        Logger.e(e.toString());
                     }
 
                     @Override
                     public void onNext(WeatherBean WeatherBean) {
                         //进行数据库操作
-                        Logger.i(WeatherBean.getHeWeather5().get(0).getBasic().getBasic_id());
+                        Basic basic = WeatherBean.getHeWeather5().get(0).getBasic();
+                        //在insert之前为主键id赋值,将城市ID转化为LONG,去除了前缀“CN”“JP”等字
+                        String str = (basic.getBasic_id()).substring(2,11);
+                        basic.setId(Long.valueOf(str));
+                        basic.setUpdateId(Long.valueOf(str));
+                        Logger.i(String.valueOf(basic.getId()));
+                        mBasicDao.insertOrReplace(basic);
+                        Logger.i(mBasicDao.load(Long.valueOf(str)).getBasic_id());
+                        Update update = WeatherBean.getHeWeather5().get(0).getBasic().getUpdate();
+//                        update.setId(Long.valueOf(str));
+                        mUpdateDao.insertOrReplace(update);
+//                        mBasicDao.loadDeep(Long.valueOf(str));
+
+
                     }
                 });
 
