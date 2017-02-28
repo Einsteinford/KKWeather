@@ -20,16 +20,21 @@ import android.view.MenuItem;
 
 import android.view.ViewGroup;
 
+import com.einsteinford.kkweather.bean.DbBasicBean;
+import com.einsteinford.kkweather.bean.DbDailyForecastBean;
 import com.einsteinford.kkweather.bean.WeatherBean;
 import com.einsteinford.kkweather.fragment.WeatherFragment;
 import com.einsteinford.kkweather.R;
 import com.einsteinford.kkweather.ui.DepthPageTransformer;
 import com.einsteinford.kkweather.utils.HttpUtils;
 import com.einsteinford.kkweather.utils.SaveDataUtil;
+import com.einsteinford.kkweather.bean.WeatherBean.HeWeather5Bean.BasicBean;
+import com.einsteinford.kkweather.bean.WeatherBean.HeWeather5Bean.DailyForecastBean;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -220,7 +225,28 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onNext(WeatherBean WeatherBean) {
                         //进行数据库操作
-                        Logger.i(WeatherBean.getHeWeather5().get(0).getBasic().getBasic_id());
+                        BasicBean basic = WeatherBean.getHeWeather5().get(0).getBasic();
+                        BasicBean.UpdateBean update = basic.getUpdate();
+                        Long id = Long.valueOf((basic.getId()).substring(2, 11));    //作为id
+                        DbBasicBean dbBasicBean = new DbBasicBean(id, basic.getId(),
+                                basic.getCity(), basic.getCnty(), basic.getLat(),
+                                basic.getLon(), update.getLoc(), update.getUtc());
+                        getBasicBeanDao().insertOrReplace(dbBasicBean);
+                        Logger.i(getBasicBeanDao().loadAll().get(0).getBasic_id());
+
+                        List<DailyForecastBean> daily = WeatherBean.getHeWeather5().get(0).getDaily_forecast();
+                        List<DbDailyForecastBean> forecastBeanList = getBasicBeanDao().loadAll().get(0).getDailyForecastBeans();
+                        for (int i = 0; i < daily.size(); i++) {
+                            DbDailyForecastBean dailyForecastBean = new DbDailyForecastBean(
+                                    null, getBasicBeanDao().loadAll().get(0).getId(), daily.get(i).getDate(), daily.get(i).getHum(),
+                                    daily.get(i).getPcpn(), daily.get(i).getPop(), daily.get(i).getPres(), daily.get(i).getUv(),
+                                    daily.get(i).getVis(), daily.get(i).getAstro().getMr(), daily.get(i).getAstro().getMs(),
+                                    daily.get(i).getAstro().getSr(), daily.get(i).getAstro().getSs(), daily.get(i).getCond().getCode_d(),
+                                    daily.get(i).getCond().getCode_n(), daily.get(i).getCond().getTxt_d(), daily.get(i).getCond().getTxt_n(),
+                                    daily.get(i).getTmp().getMax(), daily.get(i).getTmp().getMin(), daily.get(i).getWind().getDeg(),
+                                    daily.get(i).getWind().getDir(), daily.get(i).getWind().getSc(), daily.get(i).getWind().getSpd());
+                        getDailyForecastBeanDao().insertOrReplace(dailyForecastBean);
+                        }
                     }
                 });
 

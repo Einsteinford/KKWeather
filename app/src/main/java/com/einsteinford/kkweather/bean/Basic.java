@@ -8,31 +8,14 @@ import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Transient;
 import org.greenrobot.greendao.annotation.Generated;
 
-@Entity
 public class Basic {
 
-    @NotNull
     private String city;
     private String cnty;
     private String lat;
     private String lon;
-    @SerializedName("id")
     private String basic_id;
-    @Transient
     private Update update;
-
-    @Generated(hash = 1536475543)
-    public Basic(@NotNull String city, String cnty, String lat, String lon,
-            String basic_id) {
-        this.city = city;
-        this.cnty = cnty;
-        this.lat = lat;
-        this.lon = lon;
-        this.basic_id = basic_id;
-    }
-    @Generated(hash = 414549035)
-    public Basic() {
-    }
 
     public void setCity(String city) {
          this.city = city;
